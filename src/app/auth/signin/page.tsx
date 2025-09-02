@@ -2,12 +2,12 @@
 // src/app/auth/signin/page.tsx
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithRedirect, getRedirectResult } from 'firebase/auth';
 import { auth, googleProvider } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import {
@@ -37,6 +37,31 @@ export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
+  useEffect(() => {
+    const handleRedirectResult = async () => {
+      try {
+        setIsGoogleLoading(true);
+        const result = await getRedirectResult(auth);
+        if (result) {
+          // This will trigger the onAuthStateChanged listener in AuthProvider
+          // which will handle routing.
+          router.push('/');
+        }
+      } catch (error: any) {
+        console.error('Error with Google sign in:', error);
+        toast({
+          title: 'Google Sign In Failed',
+          description: error.message,
+          variant: 'destructive'
+        });
+      } finally {
+        setIsGoogleLoading(false);
+      }
+    };
+    handleRedirectResult();
+  }, [router, toast]);
+
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -64,19 +89,7 @@ export default function SignInPage() {
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
-    try {
-      await signInWithPopup(auth, googleProvider);
-      router.push('/');
-    } catch (error: any) {
-      console.error('Error with Google sign in:', error);
-      toast({
-        title: 'Google Sign In Failed',
-        description: error.message,
-        variant: 'destructive'
-      });
-    } finally {
-      setIsGoogleLoading(false);
-    }
+    await signInWithRedirect(auth, googleProvider);
   }
 
   return (

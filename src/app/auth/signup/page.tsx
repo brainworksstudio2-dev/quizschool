@@ -2,12 +2,12 @@
 // src/app/auth/signup/page.tsx
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, UserCredential } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile, signInWithRedirect, getRedirectResult, UserCredential } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { auth, db, googleProvider } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
@@ -47,8 +47,40 @@ export default function SignUpPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(true); // Start as true
   const gens = Array.from({ length: 11 }, (_, i) => String(30 + i));
+
+  useEffect(() => {
+    const handleRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+          const user = result.user;
+          const userRef = doc(db, 'users', user.uid);
+          const docSnap = await getDoc(userRef);
+
+          if (docSnap.exists()) {
+            router.push('/');
+          } else {
+            router.push('/auth/complete-profile?role=Student');
+          }
+        }
+      } catch (error: any) {
+        console.error('Error with Google sign up:', error);
+        if (error.code !== 'auth/popup-closed-by-user') {
+          toast({
+            title: 'Google Sign Up Failed',
+            description: error.message,
+            variant: 'destructive'
+          });
+        }
+      } finally {
+        setIsGoogleLoading(false);
+      }
+    };
+    handleRedirectResult();
+  }, [router, toast]);
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -98,34 +130,7 @@ export default function SignUpPage() {
 
   const handleGoogleSignUp = async () => {
     setIsGoogleLoading(true);
-    try {
-      const result: UserCredential = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-      
-      const userRef = doc(db, 'users', user.uid);
-      const docSnap = await getDoc(userRef);
-
-      if (docSnap.exists()) {
-        // User already exists, so just sign them in.
-        router.push('/');
-      } else {
-        // This is a new user. Redirect them to complete their profile.
-        router.push('/auth/complete-profile?role=Student');
-      }
-      
-    } catch (error: any) {
-      console.error('Error with Google sign up:', error);
-      // Avoid showing an error toast if the user closes the popup
-      if (error.code !== 'auth/popup-closed-by-user') {
-        toast({
-          title: 'Google Sign Up Failed',
-          description: error.message,
-          variant: 'destructive'
-        });
-      }
-    } finally {
-      setIsGoogleLoading(false);
-    }
+    await signInWithRedirect(auth, googleProvider);
   };
 
   return (
