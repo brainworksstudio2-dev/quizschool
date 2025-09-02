@@ -31,7 +31,7 @@ const formSchema = z.object({
   numQuestions: z.coerce
     .number()
     .min(1, 'Number of questions must be at least 1.')
-    .max(20, 'Number of questions cannot exceed 20.'),
+    .max(100, 'Number of questions cannot exceed 100.'),
 });
 
 export function QuizSetup() {
@@ -124,7 +124,7 @@ export function QuizSetup() {
             <FormItem>
               <FormLabel>Number of Questions</FormLabel>
               <FormControl>
-                <Input type="number" min="1" max="20" {...field} />
+                <Input type="number" min="1" max="100" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
