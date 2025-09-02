@@ -1,22 +1,15 @@
 // src/components/auth-button.tsx
 "use client";
 
-import { signInWithPopup, signOut } from 'firebase/auth';
-import { auth, googleProvider } from '@/lib/firebase';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 import { Button } from './ui/button';
 import { useAuth } from '@/context/auth-context';
-import { LogIn, LogOut } from 'lucide-react';
+import { LogOut } from 'lucide-react';
+import Link from 'next/link';
 
 export function AuthButton() {
   const { user } = useAuth();
-
-  const handleSignIn = async () => {
-    try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (error) {
-      console.error('Error signing in with Google', error);
-    }
-  };
 
   const handleSignOut = async () => {
     try {
@@ -28,20 +21,24 @@ export function AuthButton() {
 
   if (user) {
     return (
-        <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground hidden sm:block">Welcome, {user.displayName}</span>
-            <Button onClick={handleSignOut} variant="outline">
-                <LogOut className="mr-2 h-4 w-4" />
-                Sign Out
-            </Button>
-        </div>
+      <div className="flex items-center gap-4">
+        <span className="text-sm text-muted-foreground hidden sm:block">Welcome, {user.displayName}</span>
+        <Button onClick={handleSignOut} variant="outline">
+          <LogOut className="mr-2 h-4 w-4" />
+          Sign Out
+        </Button>
+      </div>
     );
   }
 
   return (
-    <Button onClick={handleSignIn}>
-      <LogIn className="mr-2 h-4 w-4" />
-      Sign in with Google
-    </Button>
+    <div className="flex items-center gap-2">
+      <Button asChild variant="ghost">
+        <Link href="/auth/signin">Sign In</Link>
+      </Button>
+      <Button asChild>
+        <Link href="/auth/signup">Sign Up</Link>
+      </Button>
+    </div>
   );
 }
