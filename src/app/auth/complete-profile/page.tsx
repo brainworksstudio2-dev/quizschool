@@ -31,6 +31,7 @@ import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/auth-context';
 import { Textarea } from '@/components/ui/textarea';
+import Image from 'next/image';
 
 const formSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters.'),
@@ -110,76 +111,93 @@ function CompleteProfileForm() {
   }
 
   return (
-    <main className="flex min-h-svh flex-col items-center justify-center p-4">
-      <Card className="w-full max-w-md shadow-2xl">
-        <CardHeader>
-          <CardTitle>Complete Your Profile</CardTitle>
-          <CardDescription>Just a few more details to get you started.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Username</FormLabel>
-                    <FormControl>
-                      <Input placeholder="John Doe" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="gen"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Gen</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder={isTeacher ? "Select the Gen you teach" : "Select your Gen"} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {gens.map((gen) => (
-                          <SelectItem key={gen} value={gen}>
-                            Gen {gen}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+    <main className="min-h-svh w-full grid grid-cols-1 lg:grid-cols-2">
+        <div className="relative hidden lg:block">
+            <Image
+                src="https://picsum.photos/1200/1803"
+                alt="Person writing on a whiteboard"
+                width={1200}
+                height={1803}
+                className="h-full w-full object-cover"
+                data-ai-hint="planning brainstorming"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+            <div className="absolute bottom-8 left-8 text-white">
+                <h2 className="text-3xl font-bold">Just one more step...</h2>
+                <p className="max-w-md mt-2">Tell us a bit more about yourself to personalize your experience.</p>
+            </div>
+        </div>
+        <div className="flex items-center justify-center p-4">
+            <Card className="w-full max-w-md shadow-2xl">
+                <CardHeader>
+                <CardTitle>Complete Your Profile</CardTitle>
+                <CardDescription>Just a few more details to get you started.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    <FormField
+                        control={form.control}
+                        name="username"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Username</FormLabel>
+                            <FormControl>
+                            <Input placeholder="John Doe" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    
+                    <FormField
+                        control={form.control}
+                        name="gen"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Gen</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                                <SelectTrigger>
+                                <SelectValue placeholder={isTeacher ? "Select the Gen you teach" : "Select your Gen"} />
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                {gens.map((gen) => (
+                                <SelectItem key={gen} value={gen}>
+                                    Gen {gen}
+                                </SelectItem>
+                                ))}
+                            </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
 
-              <FormField
-                control={form.control}
-                name="bio"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Bio</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder={isTeacher ? "Tell us about your teaching experience" : "Tell us a bit about yourself"} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                    <FormField
+                        control={form.control}
+                        name="bio"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Bio</FormLabel>
+                            <FormControl>
+                            <Textarea placeholder={isTeacher ? "Tell us about your teaching experience" : "Tell us a bit about yourself"} {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save and Continue
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Save and Continue
+                    </Button>
+                    </form>
+                </Form>
+                </CardContent>
+            </Card>
+        </div>
     </main>
   );
 }
