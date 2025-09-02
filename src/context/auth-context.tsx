@@ -32,8 +32,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           const userData = docSnap.data();
           setUser(user);
           setUserRole(userData.role);
-          // Update last login time
-          await setDoc(userRef, { lastLogin: serverTimestamp() }, { merge: true });
+          // Update last login time and photoURL on every login
+          await setDoc(userRef, { 
+            lastLogin: serverTimestamp(),
+            photoURL: user.photoURL,
+           }, { merge: true });
         } else {
           // This case might happen for users created before the role system
           // or if the doc creation failed during signup.
