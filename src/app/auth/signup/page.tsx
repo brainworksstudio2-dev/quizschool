@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { createUserWithEmailAndPassword, updateProfile, signInWithPopup } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, UserCredential } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { auth, db, googleProvider } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
@@ -98,26 +98,30 @@ export default function SignUpPage() {
   const handleGoogleSignUp = async () => {
     setIsGoogleLoading(true);
     try {
-      const result = await signInWithPopup(auth, googleProvider);
+      const result: UserCredential = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       
       const userRef = doc(db, 'users', user.uid);
       const docSnap = await getDoc(userRef);
 
-      if (!docSnap.exists()) {
-        // New user, redirect to complete profile
-        router.push('/auth/complete-profile?role=Student');
-      } else {
+      if (docSnap.exists()) {
+        // User already exists, so just sign them in.
         router.push('/');
+      } else {
+        // This is a new user. Redirect them to complete their profile.
+        router.push('/auth/complete-profile?role=Student');
       }
       
     } catch (error: any) {
       console.error('Error with Google sign up:', error);
-      toast({
-        title: 'Google Sign Up Failed',
-        description: error.message,
-        variant: 'destructive'
-      });
+      // Avoid showing an error toast if the user closes the popup
+      if (error.code !== 'auth/popup-closed-by-user') {
+        toast({
+          title: 'Google Sign Up Failed',
+          description: error.message,
+          variant: 'destructive'
+        });
+      }
     } finally {
       setIsGoogleLoading(false);
     }

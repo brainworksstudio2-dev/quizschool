@@ -58,11 +58,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
            }, { merge: true });
         } else {
             // New user signed up with Google, but profile is not complete yet.
-            // Let them proceed to the complete-profile page.
-            if (pathname !== '/auth/complete-profile') {
-                const role = pathname.includes('teacher') ? 'Teacher' : 'Student';
-                router.push(`/auth/complete-profile?role=${role}`);
-            }
+            // The logic in the signup pages will handle the redirect.
+            // We set the user to null initially to prevent a flicker or race condition.
+            setUser(null);
+            setUserData(null);
+            setUserRole(null);
         }
       } else {
         setUser(null);
@@ -73,7 +73,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => unsubscribe();
+  }, []);
+
+  // This second effect handles the user state once it's confirmed.
+  // It runs after the initial onAuthStateChanged check.
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if(user) {
+        const userRef = doc(db, 'users', user.uid);
+        const docSnap = await getDoc(userRef);
+        if (docSnap.exists()) {
+           const fetchedUserData = docSnap.data() as UserData;
+           setUser(user);
+           setUserData(fetchedUserData);
+           setUserRole(fetchedUserData.role);
+        } else if (!pathname.startsWith('/auth/complete-profile')) {
+            // If the user doc doesn't exist and they aren't completing their profile,
+            // it means they've just signed up with a provider. The signup page will redirect them.
+        }
+      }
+      setLoading(false);
+    });
+     return () => unsubscribe();
   }, [pathname, router]);
+
 
   if (loading) {
     return (
