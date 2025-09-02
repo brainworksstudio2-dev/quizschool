@@ -21,18 +21,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import type { Subject, Week } from '@/lib/curriculum';
+import type { Subject } from '@/lib/curriculum';
+import { useAuth } from '@/context/auth-context';
 
 type QuizState = 'loading' | 'ready' | 'active' | 'finished' | 'error';
 
 export function QuizView() {
   const router = useRouter();
+  const { user } = useAuth();
   const searchParams = useSearchParams();
   const { toast } = useToast();
 
   const quizDetails = useMemo(() => ({
     subject: (searchParams.get('subject') || '') as Subject,
-    week: (searchParams.get('week') || '') as Week<Subject>,
     topic: searchParams.get('topic') || '',
     numQuestions: Number(searchParams.get('numQuestions')) || 5,
   }), [searchParams]);
@@ -44,6 +45,12 @@ export function QuizView() {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [showTabSwitchAlert, setShowTabSwitchAlert] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      router.push('/');
+    }
+  }, [user, router]);
 
   const handleQuizEnd = useCallback(() => {
     if (quizState === 'active') {
@@ -75,7 +82,7 @@ export function QuizView() {
     const fetchQuestions = async () => {
       setQuizState('loading');
       try {
-        if (!quizDetails.subject || !quizDetails.topic || !quizDetails.week) {
+        if (!quizDetails.subject || !quizDetails.topic) {
           throw new Error('Missing quiz parameters.');
         }
         const data = await generateQuizQuestions(quizDetails);
@@ -96,8 +103,8 @@ export function QuizView() {
         setQuizState('error');
       }
     };
-    fetchQuestions();
-  }, [quizDetails, toast]);
+    if(user) fetchQuestions();
+  }, [quizDetails, toast, user]);
   
   const handleNextQuestion = () => {
     if (selectedAnswer === null) {

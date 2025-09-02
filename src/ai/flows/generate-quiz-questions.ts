@@ -3,7 +3,7 @@
 /**
  * @fileOverview AI-powered quiz question generator.
  *
- * - generateQuizQuestions - A function that generates quiz questions based on subject, week, topic, and number of questions.
+ * - generateQuizQuestions - A function that generates quiz questions based on subject, topic, and number of questions.
  * - GenerateQuizQuestionsInput - The input type for the generateQuizQuestions function.
  * - GenerateQuizQuestionsOutput - The return type for the generateQuizQuestions function.
  */
@@ -13,7 +13,6 @@ import {z} from 'genkit';
 
 const GenerateQuizQuestionsInputSchema = z.object({
   subject: z.string().describe('The subject of the quiz (e.g., HTML, JavaScript).'),
-  week: z.string().describe('The week number in the curriculum.'),
   topic: z.string().describe('The specific topic for the quiz.'),
   numQuestions: z.number().int().positive().describe('The number of questions to generate for the quiz.'),
 });
@@ -38,7 +37,7 @@ const generateQuizQuestionsPrompt = ai.definePrompt({
   name: 'generateQuizQuestionsPrompt',
   input: {schema: GenerateQuizQuestionsInputSchema},
   output: {schema: GenerateQuizQuestionsOutputSchema},
-  prompt: `You are an expert quiz question generator for the subject: {{{subject}}}. Generate {{{numQuestions}}} quiz questions for week {{{week}}} on the topic of {{{topic}}}.  Each question should have several options and one correct answer.
+  prompt: `You are an expert quiz question generator for the subject: {{{subject}}}. Generate {{{numQuestions}}} quiz questions on the topic of {{{topic}}}.  Each question should have several options and one correct answer.
 
 Output the questions in JSON format, including the question text, answer options, and correct answer for each question.  Ensure that the correct answer is one of the options.
 

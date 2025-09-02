@@ -6,32 +6,35 @@ import { Separator } from '@/components/ui/separator';
 import { ExplanationDialog } from './explanation-dialog';
 import { CheckCircle2, XCircle, Award } from 'lucide-react';
 import { saveQuizResult } from '@/lib/history';
-import type { Subject, Week } from '@/lib/curriculum';
+import type { Subject } from '@/lib/curriculum';
 import { useEffect } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/context/auth-context';
 
 interface ResultsCardProps {
   questions: GenerateQuizQuestionsOutput['questions'];
   userAnswers: (string | null)[];
-  quizDetails: { subject: Subject; week: Week<Subject>; topic: string; numQuestions: number };
+  quizDetails: { subject: Subject; topic: string; numQuestions: number };
   onRestart: () => void;
 }
 
 export function ResultsCard({ questions, userAnswers, quizDetails, onRestart }: ResultsCardProps) {
+  const { user } = useAuth();
   const score = questions.reduce((acc, question, index) => {
     return acc + (question.correctAnswer === userAnswers[index] ? 1 : 0);
   }, 0);
   const percentage = Math.round((score / questions.length) * 100);
 
   useEffect(() => {
-    saveQuizResult({
-      subject: quizDetails.subject,
-      week: quizDetails.week,
-      topic: quizDetails.topic,
-      numQuestions: questions.length,
-      score: score,
-    });
-  }, []);
+    if(user) {
+        saveQuizResult(user.uid, {
+            subject: quizDetails.subject,
+            topic: quizDetails.topic,
+            numQuestions: questions.length,
+            score: score,
+        });
+    }
+  }, [user, quizDetails, score, questions.length]);
 
 
   return (

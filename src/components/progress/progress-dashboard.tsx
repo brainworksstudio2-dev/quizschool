@@ -2,12 +2,14 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { getQuizHistory } from '@/lib/history';
+import { getQuizHistory, type QuizRecord } from '@/lib/history';
 import { curriculum, type Subject } from '@/lib/curriculum';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { Button } from '../ui/button';
+import { useAuth } from '@/context/auth-context';
+import { Loader2 } from 'lucide-react';
 
 interface SubjectProgress {
   correct: number;
@@ -15,6 +17,7 @@ interface SubjectProgress {
 }
 
 export function ProgressDashboard() {
+  const { user } = useAuth();
   const [progress, setProgress] = useState<Record<Subject, SubjectProgress>>(() => {
     const initial: Record<Subject, SubjectProgress> = {} as Record<Subject, SubjectProgress>;
     for (const subject in curriculum) {
@@ -25,19 +28,29 @@ export function ProgressDashboard() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const history = getQuizHistory();
-    const newProgress = { ...progress };
+    async function fetchHistory() {
+      if (!user) {
+        setIsLoading(false);
+        return;
+      };
+      
+      const history = await getQuizHistory(user.uid);
+      const newProgress = { ...progress };
 
-    for (const record of history) {
-      if (newProgress[record.subject]) {
-        newProgress[record.subject].correct += record.score;
-        newProgress[record.subject].total += record.numQuestions;
+      for (const record of history) {
+        // The record from firestore might not have subject.
+        if (record.subject && newProgress[record.subject]) {
+          newProgress[record.subject].correct += record.score;
+          newProgress[record.subject].total += record.numQuestions;
+        }
       }
+      
+      setProgress(newProgress);
+      setIsLoading(false);
     }
-    
-    setProgress(newProgress);
-    setIsLoading(false);
-  }, []);
+
+    fetchHistory();
+  }, [user]);
 
   const overallProgress = Object.values(progress).reduce((acc, subj) => {
     acc.correct += subj.correct;
@@ -48,7 +61,18 @@ export function ProgressDashboard() {
   const overallPercentage = overallProgress.total > 0 ? (overallProgress.correct / overallProgress.total) * 100 : 0;
 
   if (isLoading) {
-    return <div>Loading progress...</div>;
+    return <div className="flex justify-center items-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>;
+  }
+
+  if (!user) {
+    return (
+        <div className="text-center text-muted-foreground py-8">
+            <p>Please sign in to view your progress.</p>
+            <Button asChild variant="link" className="mt-2">
+                <Link href="/">Sign In</Link>
+            </Button>
+        </div>
+    )
   }
   
   const hasHistory = overallProgress.total > 0;

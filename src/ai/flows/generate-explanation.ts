@@ -17,7 +17,6 @@ const GenerateExplanationInputSchema = z.object({
   isCorrect: z.boolean().describe('Whether the answer was correct or not.'),
   correctAnswer: z.string().optional().describe('The correct answer, if the student was incorrect.'),
   subject: z.string().describe('The subject of the quiz question.'),
-  week: z.string().describe('The week of the curriculum the quiz question is from.'),
   topic: z.string().describe('The topic of the quiz question.'),
 });
 export type GenerateExplanationInput = z.infer<typeof GenerateExplanationInputSchema>;
@@ -40,7 +39,6 @@ const prompt = ai.definePrompt({
   A student has answered a question on a quiz. Your job is to explain why their answer was right or wrong.
 
   Subject: {{subject}}
-  Week: {{week}}
   Topic: {{topic}}
 
   Question: {{question}}
