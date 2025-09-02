@@ -21,6 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import type { Subject, Week } from '@/lib/curriculum';
 
 type QuizState = 'loading' | 'ready' | 'active' | 'finished' | 'error';
 
@@ -30,10 +31,10 @@ export function QuizView() {
   const { toast } = useToast();
 
   const quizDetails = useMemo(() => ({
-    subject: searchParams.get('subject') || '',
-    week: searchParams.get('week') || '',
+    subject: (searchParams.get('subject') || '') as Subject,
+    week: (searchParams.get('week') || '') as Week<Subject>,
     topic: searchParams.get('topic') || '',
-    numQuestions: Number(search_params.get('numQuestions')) || 5,
+    numQuestions: Number(searchParams.get('numQuestions')) || 5,
   }), [searchParams]);
 
   const [quizState, setQuizState] = useState<QuizState>('loading');
@@ -74,7 +75,7 @@ export function QuizView() {
     const fetchQuestions = async () => {
       setQuizState('loading');
       try {
-        if (!quizDetails.subject || !quizDetails.topic) {
+        if (!quizDetails.subject || !quizDetails.topic || !quizDetails.week) {
           throw new Error('Missing quiz parameters.');
         }
         const data = await generateQuizQuestions(quizDetails);

@@ -15,11 +15,12 @@ import {
 } from '@/components/ui/dialog';
 import { Loader2, Lightbulb } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
+import type { Subject, Week } from '@/lib/curriculum';
 
 interface ExplanationDialogProps {
   question: GenerateQuizQuestionsOutput['questions'][0];
   userAnswer: string;
-  quizDetails: { subject: string; week: string; topic: string; };
+  quizDetails: { subject: Subject; week: Week<Subject>; topic: string; };
 }
 
 export function ExplanationDialog({ question, userAnswer, quizDetails }: ExplanationDialogProps) {

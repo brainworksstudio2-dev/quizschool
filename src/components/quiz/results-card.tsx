@@ -5,11 +5,15 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { ExplanationDialog } from './explanation-dialog';
 import { CheckCircle2, XCircle, Award } from 'lucide-react';
+import { saveQuizResult } from '@/lib/history';
+import type { Subject, Week } from '@/lib/curriculum';
+import { useEffect } from 'react';
+import Link from 'next/link';
 
 interface ResultsCardProps {
   questions: GenerateQuizQuestionsOutput['questions'];
   userAnswers: (string | null)[];
-  quizDetails: { subject: string; week: string; topic: string; };
+  quizDetails: { subject: Subject; week: Week<Subject>; topic: string; numQuestions: number };
   onRestart: () => void;
 }
 
@@ -18,6 +22,17 @@ export function ResultsCard({ questions, userAnswers, quizDetails, onRestart }: 
     return acc + (question.correctAnswer === userAnswers[index] ? 1 : 0);
   }, 0);
   const percentage = Math.round((score / questions.length) * 100);
+
+  useEffect(() => {
+    saveQuizResult({
+      subject: quizDetails.subject,
+      week: quizDetails.week,
+      topic: quizDetails.topic,
+      numQuestions: questions.length,
+      score: score,
+    });
+  }, []);
+
 
   return (
     <Card className="w-full max-w-4xl mx-auto shadow-xl">
@@ -29,8 +44,11 @@ export function ResultsCard({ questions, userAnswers, quizDetails, onRestart }: 
         <p className="text-lg text-muted-foreground">({score} out of {questions.length} correct)</p>
       </CardHeader>
       <CardContent>
-        <div className="text-center mb-6">
+        <div className="text-center mb-6 flex items-center justify-center gap-4">
           <Button onClick={onRestart}>Take Another Quiz</Button>
+          <Button asChild variant="outline">
+            <Link href="/progress">View Progress</Link>
+          </Button>
         </div>
         <Separator className="my-6" />
         <h3 className="text-xl font-semibold mb-4 text-center">Review Your Answers</h3>
