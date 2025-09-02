@@ -22,15 +22,12 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters.'),
   email: z.string().email('Please enter a valid email.'),
   password: z.string().min(6, 'Password must be at least 6 characters.'),
-  role: z.enum(['Student', 'Teacher'], { required_error: 'Please select a role.' }),
 });
 
 export default function SignUpPage() {
@@ -44,7 +41,6 @@ export default function SignUpPage() {
       username: '',
       email: '',
       password: '',
-      role: 'Student',
     },
   });
 
@@ -61,7 +57,7 @@ export default function SignUpPage() {
         uid: user.uid,
         displayName: values.username,
         email: values.email,
-        role: values.role,
+        role: 'Student', // Default role is Student
         createdAt: serverTimestamp(),
         lastLogin: serverTimestamp(),
       });
@@ -84,8 +80,8 @@ export default function SignUpPage() {
     <main className="flex min-h-svh flex-col items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-2xl">
         <CardHeader>
-          <CardTitle>Create an Account</CardTitle>
-          <CardDescription>Join QuizWhiz to start your journey.</CardDescription>
+          <CardTitle>Create a Student Account</CardTitle>
+          <CardDescription>Join QuizWhiz to start your learning journey.</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -126,36 +122,6 @@ export default function SignUpPage() {
                       <Input type="password" placeholder="••••••••" {...field} />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="role"
-                render={({ field }) => (
-                  <FormItem className="space-y-3">
-                    <FormLabel>I am a...</FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="flex space-x-4"
-                      >
-                        <FormItem className="flex items-center space-x-2">
-                          <FormControl>
-                            <RadioGroupItem value="Student" id="student" />
-                          </FormControl>
-                          <Label htmlFor="student">Student</Label>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-2">
-                           <FormControl>
-                            <RadioGroupItem value="Teacher" id="teacher" />
-                          </FormControl>
-                          <Label htmlFor="teacher">Teacher</Label>
-                        </FormItem>
-                      </RadioGroup>
-                    </FormControl>
-                     <FormMessage />
                   </FormItem>
                 )}
               />
