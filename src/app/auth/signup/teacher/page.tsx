@@ -1,3 +1,4 @@
+
 // src/app/auth/signup/teacher/page.tsx
 "use client";
 
