@@ -4,12 +4,13 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyAUpDW1kQgFJj88LtuTsSTCeJTHT7nj62U",
+  authDomain: "photo-dcd62.firebaseapp.com",
+  projectId: "photo-dcd62",
+  storageBucket: "photo-dcd62.appspot.com",
+  messagingSenderId: "593979535280",
+  appId: "1:593979535280:web:77cae1f5a8aaaa8e9af075",
+  measurementId: "G-WZYQG8RVEQ"
 };
 
 // Initialize Firebase
