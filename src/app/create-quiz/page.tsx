@@ -22,11 +22,11 @@ export default function CreateQuizPage() {
         }
     }, [user, userRole, loading, router]);
 
-    if (loading || userRole !== 'Teacher') {
+    if (loading || !user || userRole !== 'Teacher') {
         return (
             <div className="flex h-screen w-full flex-col items-center justify-center gap-4">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                <p className="text-lg">Verifying access...</p>
+                <p className="text-lg">Verifying teacher access...</p>
             </div>
         );
     }
@@ -44,7 +44,7 @@ export default function CreateQuizPage() {
           <CardHeader className="text-center">
             <CardTitle className="text-3xl font-bold text-primary">Create a Quiz</CardTitle>
             <CardDescription className="text-lg">
-              Set up a new quiz for your students.
+              Set up a new quiz for your students. The AI will generate questions based on your selections.
             </CardDescription>
           </CardHeader>
           <CardContent>

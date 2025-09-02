@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Loader2, BrainCircuit } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { QuizSetup } from '@/components/quiz-setup';
+import { AuthButton } from '@/components/auth-button';
 
 export default function Home() {
   const { user, userRole, loading } = useAuth();
@@ -21,6 +22,9 @@ export default function Home() {
 
   return (
     <main className="flex min-h-svh flex-col items-center justify-center p-4">
+       <div className="absolute top-4 right-4">
+          <AuthButton />
+        </div>
       <div className="w-full max-w-2xl">
         <div className="flex justify-center mb-6">
           <BrainCircuit className="w-16 h-16 text-primary" />
@@ -36,22 +40,20 @@ export default function Home() {
             {user ? (
               <div className="text-center">
                 {userRole === 'Teacher' && (
-                   <p className="mb-4">Create and manage quizzes for your students.</p>
+                  <div className="space-y-4">
+                    <p className="text-muted-foreground">Create and manage quizzes for your students.</p>
+                    <Button asChild size="lg">
+                      <Link href="/create-quiz">Create a New Quiz</Link>
+                    </Button>
+                  </div>
                 )}
                  {userRole === 'Student' && (
-                   <p className="mb-4">Take a quiz to test your knowledge.</p>
-                )}
-                <div className="flex justify-center gap-4">
-                  {userRole === 'Teacher' && (
-                    <Button asChild>
-                      <Link href="/create-quiz">Create Quiz</Link>
-                    </Button>
-                  )}
-                  {userRole === 'Student' && (
+                  <div className="space-y-4">
+                     <p className="mb-4">Take a quiz to test your knowledge.</p>
                      <QuizSetup />
-                  )}
-                </div>
-                 <div className="text-center mt-4">
+                  </div>
+                )}
+                 <div className="text-center mt-6">
                   <Button asChild variant="link">
                     <Link href="/progress">View My Progress</Link>
                   </Button>

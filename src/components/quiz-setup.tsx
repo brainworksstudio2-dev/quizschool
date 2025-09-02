@@ -1,3 +1,4 @@
+// src/components/quiz-setup.tsx
 "use client";
 
 import { useState } from 'react';
@@ -24,32 +25,41 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Loader2 } from 'lucide-react';
+import { useAuth } from '@/context/auth-context';
 
 const formSchema = z.object({
   subject: z.string().min(1, 'Please select a subject.'),
-  topic: z.string().min(1, 'Please select a topic.'),
+  topic: z.string().min(3, 'Topic must be at least 3 characters.'),
   numQuestions: z.coerce
     .number()
     .min(1, 'Number of questions must be at least 1.')
-    .max(100, 'Number of questions cannot exceed 100.'),
+    .max(10, 'For practice, the max is 10 questions.'),
+});
+
+const teacherFormSchema = formSchema.extend({
+    numQuestions: z.coerce
+    .number()
+    .min(1, 'Number of questions must be at least 1.')
+    .max(50, 'Number of questions cannot exceed 50.'),
 });
 
 export function QuizSetup() {
   const router = useRouter();
+  const { userRole } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const isTeacher = userRole === 'Teacher';
+  
   const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(isTeacher ? teacherFormSchema : formSchema),
     defaultValues: {
       subject: '',
       topic: '',
-      numQuestions: 5,
+      numQuestions: isTeacher ? 10 : 5,
     },
   });
 
   const subject = form.watch('subject') as Subject | undefined;
-  
-  const topics = subject ? curriculum[subject] : [];
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
@@ -70,10 +80,7 @@ export function QuizSetup() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Subject</FormLabel>
-              <Select onValueChange={(value) => {
-                field.onChange(value);
-                form.setValue('topic', '');
-              }} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a subject" />
@@ -98,20 +105,9 @@ export function QuizSetup() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Topic</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value} disabled={!subject}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a topic" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {topics.map((topic: string) => (
-                    <SelectItem key={topic} value={topic}>
-                      {topic}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+               <FormControl>
+                 <Input placeholder="e.g., 'React Hooks' or 'CSS Flexbox'" {...field} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -124,7 +120,7 @@ export function QuizSetup() {
             <FormItem>
               <FormLabel>Number of Questions</FormLabel>
               <FormControl>
-                <Input type="number" min="1" max="100" {...field} />
+                <Input type="number" min="1" max={isTeacher ? "50" : "10"} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -133,7 +129,7 @@ export function QuizSetup() {
 
         <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Start Quiz
+          {isTeacher ? 'Generate Quiz' : 'Start Practice Quiz'}
         </Button>
       </form>
     </Form>
