@@ -115,10 +115,10 @@ function CompleteProfileForm() {
     <main className="min-h-svh w-full grid grid-cols-1 lg:grid-cols-2">
         <div className="relative hidden lg:block">
             <Image
-                src="https://picsum.photos/1200/1803"
+                src="https://picsum.photos/1200/1804"
                 alt="Person writing on a whiteboard"
                 width={1200}
-                height={1803}
+                height={1804}
                 className="h-full w-full object-cover"
                 data-ai-hint="planning brainstorming"
             />

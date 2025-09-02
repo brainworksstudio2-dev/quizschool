@@ -132,10 +132,10 @@ export default function SignUpPage() {
     <main className="min-h-svh w-full grid grid-cols-1 lg:grid-cols-2">
        <div className="relative hidden lg:block">
         <Image
-            src="https://picsum.photos/1200/1801"
+            src="https://picsum.photos/1200/1806"
             alt="Student studying with books"
             width={1200}
-            height={1801}
+            height={1806}
             className="h-full w-full object-cover"
             data-ai-hint="student study"
         />
