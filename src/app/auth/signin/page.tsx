@@ -81,12 +81,12 @@ export default function SignInPage() {
 
   return (
     <main className="min-h-svh w-full grid grid-cols-1 lg:grid-cols-2">
-      <div className="relative hidden lg:block">
+      <div className="relative hidden h-full lg:block">
         <Image
-            src="https://picsum.photos/1200/1805"
+            src="https://picsum.photos/800/1201"
             alt="Students collaborating"
-            width={1200}
-            height={1805}
+            width={800}
+            height={1201}
             className="h-full w-full object-cover"
             data-ai-hint="students learning"
         />
