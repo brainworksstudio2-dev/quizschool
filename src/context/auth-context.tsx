@@ -6,21 +6,39 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
 
 type UserRole = 'Student' | 'Teacher' | null;
 
+interface UserData {
+    uid: string;
+    displayName: string;
+    email: string | null;
+    photoURL: string | null;
+    role: UserRole;
+    gen?: string;
+    bio?: string;
+    createdAt: any;
+    lastLogin: any;
+}
+
+
 interface AuthContextType {
   user: User | null;
+  userData: UserData | null,
   userRole: UserRole;
   loading: boolean;
 }
 
-const AuthContext = createContext<AuthContextType>({ user: null, userRole: null, loading: true });
+const AuthContext = createContext<AuthContextType>({ user: null, userData: null, userRole: null, loading: true });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [userRole, setUserRole] = useState<UserRole>(null);
   const [loading, setLoading] = useState(true);
+  const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -29,41 +47,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const docSnap = await getDoc(userRef);
 
         if (docSnap.exists()) {
-          const userData = docSnap.data();
+          const fetchedUserData = docSnap.data() as UserData;
           setUser(user);
-          setUserRole(userData.role);
+          setUserData(fetchedUserData);
+          setUserRole(fetchedUserData.role);
           // Update last login time and photoURL on every login
           await setDoc(userRef, { 
             lastLogin: serverTimestamp(),
             photoURL: user.photoURL,
            }, { merge: true });
         } else {
-          // This case might happen for users created before the role system
-          // or if the doc creation failed during signup.
-          // We can assign a default role or handle as needed.
-          const defaultRole = 'Student';
-          const newUserDoc = {
-            uid: user.uid,
-            email: user.email,
-            displayName: user.displayName,
-            photoURL: user.photoURL,
-            role: defaultRole,
-            createdAt: serverTimestamp(),
-            lastLogin: serverTimestamp(),
-          };
-          await setDoc(userRef, newUserDoc, { merge: true });
-          setUser(user);
-          setUserRole(defaultRole);
+            // New user signed up with Google, but profile is not complete yet.
+            // Let them proceed to the complete-profile page.
+            if (pathname !== '/auth/complete-profile') {
+                const role = pathname.includes('teacher') ? 'Teacher' : 'Student';
+                router.push(`/auth/complete-profile?role=${role}`);
+            }
         }
       } else {
         setUser(null);
+        setUserData(null);
         setUserRole(null);
       }
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [pathname, router]);
 
   if (loading) {
     return (
@@ -75,7 +85,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, userRole, loading }}>
+    <AuthContext.Provider value={{ user, userData, userRole, loading }}>
       {children}
     </AuthContext.Provider>
   );

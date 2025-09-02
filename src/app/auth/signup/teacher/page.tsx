@@ -1,4 +1,4 @@
-// src/app/auth/signup/page.tsx
+// src/app/auth/signup/teacher/page.tsx
 "use client";
 
 import { useState } from 'react';
@@ -37,11 +37,11 @@ const formSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters.'),
   email: z.string().email('Please enter a valid email.'),
   password: z.string().min(6, 'Password must be at least 6 characters.'),
-  gen: z.string().min(1, "Please select your Gen."),
+  gen: z.string().min(1, "Please select the Gen you teach."),
   bio: z.string().optional(),
 });
 
-export default function SignUpPage() {
+export default function TeacherSignUpPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -73,7 +73,7 @@ export default function SignUpPage() {
         displayName: values.username,
         email: values.email,
         photoURL: user.photoURL,
-        role: 'Student', // Default role is Student
+        role: 'Teacher',
         gen: values.gen,
         bio: values.bio,
         createdAt: serverTimestamp(),
@@ -104,8 +104,7 @@ export default function SignUpPage() {
       const docSnap = await getDoc(userRef);
 
       if (!docSnap.exists()) {
-        // New user, redirect to complete profile
-        router.push('/auth/complete-profile?role=Student');
+        router.push('/auth/complete-profile?role=Teacher');
       } else {
         router.push('/');
       }
@@ -127,8 +126,8 @@ export default function SignUpPage() {
     <main className="flex min-h-svh flex-col items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-2xl">
         <CardHeader>
-          <CardTitle>Create a Student Account</CardTitle>
-          <CardDescription>Join QuizWhiz to start your learning journey.</CardDescription>
+          <CardTitle>Create a Teacher Account</CardTitle>
+          <CardDescription>Get started with creating quizzes for your students.</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -172,7 +171,7 @@ export default function SignUpPage() {
                   </FormItem>
                 )}
               />
-              <FormField
+               <FormField
                 control={form.control}
                 name="gen"
                 render={({ field }) => (
@@ -181,7 +180,7 @@ export default function SignUpPage() {
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select your Gen" />
+                          <SelectValue placeholder="Select the Gen you teach" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -203,7 +202,7 @@ export default function SignUpPage() {
                   <FormItem>
                     <FormLabel>Bio</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Tell us a little bit about yourself" {...field} />
+                      <Textarea placeholder="Tell us a little bit about your teaching experience" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -211,7 +210,7 @@ export default function SignUpPage() {
               />
               <Button type="submit" className="w-full" disabled={isLoading || isGoogleLoading}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Sign Up with Email
+                Sign Up as Teacher
               </Button>
             </form>
           </Form>
@@ -222,10 +221,10 @@ export default function SignUpPage() {
             {isGoogleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 23.4 172.9 61.9l-76.4 64.5c-31.4-29.5-71.4-48-117.5-48-90.8 0-164.7 73.9-164.7 164.7s73.9 164.7 164.7 164.7c101.5 0 146.9-72.3 151.2-111.9H248v-85.3h236.2c2.4 12.7 3.8 26.1 3.8 40.2z"></path></svg>}
             Sign up with Google
           </Button>
-          
+
           <div className="mt-4 text-center text-sm">
-            Are you a teacher?{' '}
-            <Link href="/auth/signup/teacher" className="underline">
+            Are you a student?{' '}
+            <Link href="/auth/signup" className="underline">
               Sign up here
             </Link>
           </div>
