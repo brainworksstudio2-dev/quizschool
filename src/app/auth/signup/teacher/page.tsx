@@ -104,6 +104,7 @@ export default function TeacherSignUpPage() {
       const docSnap = await getDoc(userRef);
 
       if (!docSnap.exists()) {
+        // New user, redirect to complete profile with Teacher role
         router.push('/auth/complete-profile?role=Teacher');
       } else {
         router.push('/');
