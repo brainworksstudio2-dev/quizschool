@@ -130,14 +130,13 @@ export default function TeacherSignUpPage() {
 
 
   return (
-     <main className="min-h-svh w-full grid grid-cols-1 lg:grid-cols-2">
+     <main className="h-svh w-full grid grid-cols-1 lg:grid-cols-2">
        <div className="relative hidden h-full lg:block">
         <Image
             src="https://picsum.photos/800/1203"
             alt="Teacher in a classroom"
-            width={800}
-            height={1203}
-            className="h-full w-full object-cover"
+            fill
+            className="object-cover"
             data-ai-hint="teacher classroom"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
