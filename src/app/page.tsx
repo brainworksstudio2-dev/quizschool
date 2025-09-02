@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Loader2, BrainCircuit } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { QuizSetup } from '@/components/quiz-setup';
 import { AuthButton } from '@/components/auth-button';
 
 export default function Home() {
@@ -49,8 +48,8 @@ export default function Home() {
                 )}
                  {userRole === 'Student' && (
                   <div className="space-y-4">
-                     <p className="mb-4">Take a quiz to test your knowledge.</p>
-                     <QuizSetup />
+                     <p className="text-muted-foreground mb-4">There are no active quizzes for you right now.</p>
+                     <p>Please wait for your teacher to assign a quiz.</p>
                   </div>
                 )}
                  <div className="text-center mt-6">
